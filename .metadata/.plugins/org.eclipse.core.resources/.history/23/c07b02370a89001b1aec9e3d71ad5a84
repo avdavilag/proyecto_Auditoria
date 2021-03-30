@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<h:outputStylesheet name="css/primeflex.css" library="showcase" />
+</h:head>
+<body>
+	<p:growl>
+		<p:autoUpdate />
+	</p:growl>
+	<div class="ui-g">
+		<ui:insert>
+			<ui:include src="menu.xhtml" />
+		</ui:insert>
+		<div class="ui-g-10">
+			<div class="ui-g-12">
+				<h:form>
+					<p:panelGrid columns="4">
+
+						<h:outputText value="Id Factura: " />
+						<h:outputText value="#{beanFactura.editarfactura.idFactura}" />
+
+						<h:outputText value="Fecha:" />
+						<p:calendar value="#{beanFactura.editarfactura.fecha}" pattern="dd/MM/yyyy"
+							required="true" requiredMessage="Ingrese la fecha" />
+							
+						<h:outputText value="Fecha de vencimiento:" />
+						<p:calendar value="#{beanFactura.editarfactura.fechaVencimiento}" pattern="dd/MM/yyyy"
+							required="true" requiredMessage="Ingrese la fecha" />
+						
+						<h:outputText value="Proveedor" />
+						<p:selectOneMenu value="#{beanFactura.idProveedor}">
+							<f:selectItems value="#{beanProveedor.listaProveedores}" var="c"
+								itemLabel="#{c.nombre} #{c.apellido}" itemValue="#{c.idProveedor}"></f:selectItems>
+						</p:selectOneMenu>
+
+						<p:commandButton value="Guardar" icon="pi pi-save" update="@form"
+							action="#{beanFactura.actionListenerEditarFactura()}"></p:commandButton>
+							
+							<p:commandButton value="Imprimir" icon="pi pi-print"
+							></p:commandButton>
+					
+					</p:panelGrid>
+					
+				</h:form>
+				
+				
+				
+				
+			</div>
+		</div>
+	</div>
+	
+	
+		<div class="ui-g">
+		<ui:insert>
+			<ui:include src="menu.xhtml" />
+		</ui:insert>
+		<div class="ui-g-10">
+			<div class="ui-g-12">
+				<h:form>
+					<p:panelGrid columns="2">
+
+						<h:outputText value="Fecha de vencimiento:" />
+						<p:calendar value="#{beanFactura.nuevafactura.fechaVencimiento}"
+							pattern="dd/MM/yyyy" required="true"
+							requiredMessage="Ingrese la Fecha de vencimiento" />
+
+						<h:outputText value="Proveedor" />
+						<p:selectOneMenu value="#{beanFactura.idProveedor}">
+							<f:selectItems value="#{beanProveedor.listaProveedores}" var="c"
+								itemLabel="#{c.nombre} #{c.apellido}" itemValue="#{c.idProveedor}"></f:selectItems>
+						</p:selectOneMenu>
+
+						<p:commandButton value="Guardar" icon="pi pi-save" update="@form"
+							action="#{beanFactura.actionListenerCrearFactura()}"></p:commandButton>
+					</p:panelGrid>
+				</h:form>
+			</div>
+		</div>
+	</div>
+	
+	
+	
+	<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+		<p:commandButton value="Si" type="button"
+			styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+		<p:commandButton value="No" type="button"
+			styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+	</p:confirmDialog>
+</body>
+</html>

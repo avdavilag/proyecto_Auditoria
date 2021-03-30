@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+<f:metadata>
+
+</f:metadata>
+<h:head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<h:outputStylesheet name="css/primeflex.css" library="showcase" />
+</h:head>
+<body>
+	<p:growl>
+		<p:autoUpdate />
+	</p:growl>
+	<div class="ui-g">
+		<ui:insert>
+			<ui:include src="menu.xhtml" />
+		</ui:insert>
+		<div class="ui-g-10">
+
+			<p:panelGrid columns="4" id="facturaDatos">
+				<h:outputText value="Id factura:" />
+				<h:outputText value="#{beanDetalle.comprasFactura.idFactura}" />
+
+				<h:outputText value="Proveedor" />
+				<h:outputText
+					value="#{beanDetalle.comprasFactura.comprasProveedore.nombre} 
+					#{beanDetalle.comprasFactura.comprasProveedore.apellido}" />
+
+				<h:outputText value="Fecha:" />
+				<h:outputText value="#{beanDetalle.comprasFactura.fecha}" />
+
+				<h:outputText value="Fecha vencimiento" />
+				<h:outputText value="#{beanDetalle.comprasFactura.fechaVencimiento}" />
+
+				<h:outputText value="Tipo pago" />
+				<h:outputText
+					value="#{beanDetalle.comprasFactura.comprasProveedore.comprasTipoProveedor.nombre}" />
+
+				<h:outputText value="TOTAL" />
+				<h:outputText
+					value="#{beanDetalle.roundNumber(beanDetalle.comprasFactura.total)}" />
+			</p:panelGrid>
+
+			<div class="ui-g-6">
+				<p:commandButton value="Añadir detalle" icon="pi pi-plus"
+					oncomplete="PF('dlgEdicion').show();" />
+			</div>
+
+			<div class="ui-g-12">
+				<h:form id="formDatos">
+					<p:dataTable value="#{beanDetalle.listaDetalle}" var="u"
+						emptyMessage="No hay Detalles" rowHover="true" reflow="true">
+
+						<p:column headerText="Id Detalle">
+							<h:outputText value="#{u.id_detalle}" />
+						</p:column>
+
+						<p:column headerText="Cantidad">
+							<h:outputText value="#{u.cantidad}" />
+						</p:column>
+
+						<p:column headerText="Producto">
+							<h:outputText value="#{u.producto.nombre}" />
+						</p:column>
+
+						<p:column headerText="Precio">
+							<h:outputText value="#{u.producto.precio}" />
+						</p:column>
+
+						<p:column headerText="iva">
+							<h:outputText value="#{u.producto.iva}" />
+						</p:column>
+
+						<p:column headerText="subtotal">
+							<h:outputText
+								value="#{beanDetalle.calcularSubtotal(u.producto.iva, u.producto.precio)}" />
+						</p:column>
+
+						<p:column headerText="Total">
+							<h:outputText
+								value="#{beanDetalle.calcularTotal(u.cantidad, u.producto.iva, u.producto.precio)}" />
+						</p:column>
+
+						<p:column headerText="Opciones">
+							<p:commandButton icon="pi pi-trash" title="eliminar"
+								actionListener="#{beanDetalle.actionListenerEliminar(u.id_detalle)}"
+								update="@form, :facturaDatos" styleClass="ui-button-danger">
+								<p:confirm header="Confirmacion" message="Desea eliminar?"></p:confirm>
+							</p:commandButton>
+						</p:column>
+					</p:dataTable>
+				</h:form>
+			</div>
+
+
+			<div class="ui-g-3">
+				<h:commandLink>						
+				<h:commandButton value="Imprimir" />
+				<p:dataExporter type="pdf"	target="Hola" fileName="hola">
+				</p:dataExporter>
+				</h:commandLink>
+			</div>
+		</div>
+	</div>
+
+	<p:dialog header="Crear Detalle" widgetVar="dlgEdicion" modal="true">
+		<h:form id="formEdicion">
+			<p:messages>
+				<p:autoUpdate />
+			</p:messages>
+			<h:panelGrid columns="2">
+
+				<h:outputText value="Producto:" />
+				<p:selectOneMenu value="#{beanDetalle.nuevoDetalle.idProducto}">
+					<f:selectItems value="#{beanProductos.listProductos}" var="c"
+						itemLabel="#{c.nombre}" itemValue="#{c.codproducto}"></f:selectItems>
+				</p:selectOneMenu>
+
+				<h:outputText value="Cantidad:" />
+				<p:spinner value="#{beanDetalle.nuevoDetalle.cantidad}" min="1" />
+
+				<p:commandButton value="Guardar" icon="pi pi-save"
+					update="@form, :formDatos, :facturaDatos"
+					action="#{beanDetalle.actionListenerCrearDetalle()}"></p:commandButton>
+			</h:panelGrid>
+		</h:form>
+	</p:dialog>
+
+
+	<!--  -->
+
+	<p:dialog header="Editar Detalle" widgetVar="DetEditar" modal="true">
+		<h:form id="formEditar">
+			<p:messages>
+				<p:autoUpdate />
+			</p:messages>
+			<h:panelGrid columns="2">
+
+				<h:outputText value="Id Detalle:" />
+				<h:outputText value="#{beanDetalle.editarDetalle.idDetalle}" />
+
+				<h:outputText value="Producto:" />
+				<p:selectOneMenu value="#{beanDetalle.editarDetalle.idProducto}">
+					<f:selectItems value="#{beanProductos.listProductos}" var="c"
+						itemLabel="#{c.nombre}" itemValue="#{c.codproducto}"></f:selectItems>
+				</p:selectOneMenu>
+
+				<h:outputText value="Cantidad:" />
+				<p:spinner value="#{beanDetalle.editarDetalle.cantidad}" min="1" />
+
+				<p:commandButton value="Guardar" icon="pi pi-save"
+					update="@form, :formDatos"
+					action="#{beanDetalle.actionListenerEditarDetalle()}"></p:commandButton>
+
+			</h:panelGrid>
+		</h:form>
+		<h:commandLink>
+					<h:commandButton value="Exportar PDF" />
+				<p:dataExporter type="pdf"	target="formDatos" fileName="hola"></p:dataExporter>
+				</h:commandLink>
+	</p:dialog>
+			
+			
+
+	<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+		<p:commandButton value="Si" type="button"
+			styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+		<p:commandButton value="No" type="button"
+			styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+	</p:confirmDialog>
+</body>
+</html>

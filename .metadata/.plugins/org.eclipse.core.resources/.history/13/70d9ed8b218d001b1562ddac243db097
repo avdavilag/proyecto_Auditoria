@@ -1,0 +1,331 @@
+package compras.controller;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
+import javax.enterprise.context.SessionScoped;
+import javax.faces.context.FacesContext;
+import javax.inject.Named;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+
+import compras.model.dtos.DTODetalle;
+import compras.model.entities.ComprasDetalle;
+import compras.model.entities.ComprasFactura;
+import compras.model.managers.ManagerDetalle;
+import compras.model.managers.ManagerFactura;
+import compras.view.util.JSFUtil;
+
+@Named
+@SessionScoped
+public class BeanDetalle implements Serializable {
+	private List<DTODetalle> listaDetalle;
+	private ComprasDetalle nuevoDetalle;
+	private ComprasDetalle editarDetalle;
+
+	@EJB
+	private ManagerDetalle mDetalle;
+
+	@EJB
+	private ManagerFactura mFactura;
+
+	@ManyToOne
+	@JoinColumn(name = "id_factura")
+	private ComprasFactura comprasFactura;
+
+	public BeanDetalle() {
+		// TODO Auto-generated constructor stub
+	}
+
+	@PostConstruct
+	public void inicializar() {
+		nuevoDetalle = new ComprasDetalle();
+		editarDetalle = new ComprasDetalle();
+	}
+	
+	public double roundNumber(BigDecimal bd) {
+		return bd.setScale(2, RoundingMode.HALF_UP).doubleValue();
+	}
+
+	public String actionSeleccionarFactura(ComprasFactura comprasFactura) {
+		try {
+			setListaDetalle(mDetalle.findByIdFacturaDTODetalle(comprasFactura.getIdFactura()));
+			this.comprasFactura = comprasFactura;
+			return "detalle";
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			JSFUtil.crearMensajeERROR(e.getMessage());
+			return "";
+		}
+
+	}
+
+	public String actionListenerCrearDetalle() {
+		try {
+			mDetalle.crearDetalle(nuevoDetalle, comprasFactura.getIdFactura());
+			setListaDetalle(mDetalle.findByIdFacturaDTODetalle(comprasFactura.getIdFactura()));
+
+			// actualiza el total de la factura
+			comprasFactura.setTotal(new BigDecimal(facturaTotal()));
+			mFactura.actualizarFacturaTotal(comprasFactura);
+
+			JSFUtil.crearMensajeINFO("Detalle creado exitosamente");
+			nuevoDetalle = new ComprasDetalle();
+			return "detalle";
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+			return "";
+		}
+	}
+
+	public void actionListenerEliminar(Integer idDetalle) {
+		try {
+			mDetalle.eliminarDetalle(idDetalle);
+			setListaDetalle(mDetalle.findByIdFacturaDTODetalle(comprasFactura.getIdFactura()));
+
+			// actualiza el total de la factura
+			comprasFactura.setTotal(new BigDecimal(facturaTotal()));
+			mFactura.actualizarFacturaTotal(comprasFactura);
+
+			JSFUtil.crearMensajeINFO("Detalle eliminado exitosamente");
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+		}
+	}
+
+	public void actionSeleccionarDetalle(ComprasDetalle detalle) {
+		editarDetalle = detalle;
+	}
+
+	public String actionListenerEditarDetalle() {
+		try {
+			mDetalle.actualizarDetalle(editarDetalle, editarDetalle.getIdDetalle());
+			setListaDetalle(mDetalle.findByIdFacturaDTODetalle(comprasFactura.getIdFactura()));
+
+			// actualiza el total de la factura
+			comprasFactura.setTotal(new BigDecimal(facturaTotal()));
+			mFactura.actualizarFacturaTotal(comprasFactura);
+
+			JSFUtil.crearMensajeINFO("Detalle actualizado");
+			editarDetalle = new ComprasDetalle();
+			return "detalle";
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+			return "";
+		}
+	}
+	
+public void imprimir() throws Exception {
+		
+		DecimalFormat df= new DecimalFormat("#.##");
+		//System.out.println("Aquiii" + id_utimiingreso);
+		//FileOutputStream baos = new FileOutputStream("");
+		Document document = new Document(PageSize.LETTER);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();	
+		try {
+			PdfWriter.getInstance(document,baos);
+			// METADATA
+			// Provider alumnodaos = new Provider();
+
+			document.open();
+			// Obtenemos la instancia de la imagen/logo.
+
+//			Image imagen = Image.getInstance("/home/robertpatino/git/sarelv1/sarelWeb/WebContent/imagen/Logo.png");
+//			// Alineamos la imagen al centro del documento.
+//			imagen.setAlignment(Image.ALIGN_RIGHT);
+//			imagen.scaleAbsolute(150, 100);
+//			// Agregamos la imagen al documento.
+//			document.add(imagen);
+			document.add(new Paragraph(" EMPRESAS GRUPO 2 \n",
+					FontFactory.getFont("italic", 45, Font.BOLD)));
+			document.add(new Paragraph("\n"));
+			
+			
+				document.add(new Paragraph(" FACTURA N°: " + listaDetalle.get(0).getId_factura() + " \n",
+						FontFactory.getFont("italic", 11, Font.BOLD)));
+				
+				document.add(new Paragraph(" PROVEEDOR:  "+"\t " + comprasFactura.getComprasProveedore().getNombre() +" "+comprasFactura.getComprasProveedore().getApellido()+ " \n",
+						FontFactory.getFont("italic", 11, Font.BOLD)));
+				
+				document.add(new Paragraph(" FECHA ACTUAL: "+"\t "  + comprasFactura.getFecha() +" \n",
+						FontFactory.getFont("italic", 11, Font.BOLD)));
+				
+				document.add(new Paragraph(" FECHA DE VENCIMIENTO: "+"\t " + comprasFactura.getFechaVencimiento() + " \n",
+						FontFactory.getFont("italic", 11, Font.BOLD)));
+				
+				document.add(new Paragraph(" TIPO DE PAGO: "+"\t " + comprasFactura.getComprasProveedore().getComprasTipoProveedor().getNombre() + " \n",
+						FontFactory.getFont("italic", 11, Font.BOLD)));
+
+				document.add(new Paragraph(" TOTAL: "+"\t " + df.format(comprasFactura.getTotal()) +" \n",
+						FontFactory.getFont("italic", 11, Font.BOLD)));
+				 
+
+			document.add(new Paragraph("Detalles de Factura", FontFactory.getFont("italic", 12, Font.BOLD)));
+
+			document.add(new Paragraph("\n"));
+			
+			DateFormat formatter = new SimpleDateFormat("dd/MM/yy '-' hh:mm:ss");
+			Date currentDate = new Date();
+			String date = formatter.format(currentDate);
+			document.add(new Paragraph("Fecha Generado: " + date));			
+			document.add(new Paragraph("Detalles de Factura", FontFactory.getFont("italic", 12, Font.BOLD)));
+
+			document.add(new Paragraph("\n"));
+		   PdfPTable table1 = new PdfPTable(7);
+			table1.setTotalWidth(new float[] { 70, 70, 70, 70, 70, 70, 70});
+			
+			table1.addCell(new Paragraph("Id Detalle:", FontFactory.getFont("italic", 12, Font.BOLD)));
+			table1.addCell(new Paragraph("Cantidad:", FontFactory.getFont("italic", 12, Font.BOLD)));
+			table1.addCell(new Paragraph("Producto:", FontFactory.getFont("italic", 12, Font.BOLD)));
+			table1.addCell(new Paragraph("Precio:", FontFactory.getFont("italic", 12, Font.BOLD)));
+			table1.addCell(new Paragraph("Iva:", FontFactory.getFont("italic", 12, Font.BOLD)));
+			table1.addCell(new Paragraph("Subtotal:", FontFactory.getFont("italic", 12, Font.BOLD)));
+			table1.addCell(new Paragraph("Total:", FontFactory.getFont("italic", 12, Font.BOLD)));
+			for (int i = 0; i < listaDetalle.size(); i++) {
+
+				table1.addCell(listaDetalle.get(i).getId_detalle()+"");
+				table1.addCell(listaDetalle.get(i).getCantidad()+"");
+				
+				table1.addCell(listaDetalle.get(i).getProducto().getNombre()+"");
+				
+				table1.addCell(listaDetalle.get(i).getProducto().getPrecio()+"");
+				
+				table1.addCell(listaDetalle.get(i).getProducto().getIva()+"");
+											
+				table1.addCell(calcularSubtotal(listaDetalle.get(i).getProducto().getIva(), listaDetalle.get(i).getProducto().getPrecio())+"");
+				
+				table1.addCell(calcularTotal(listaDetalle.get(i).getCantidad(), listaDetalle.get(i).getProducto().getIva(), listaDetalle.get(i).getProducto().getPrecio())+"");
+				
+				
+
+			}
+		
+
+			/* for (int i = 0; i < listaDetalle.size(); i++) {
+				PdfPCell celdaFinal = new PdfPCell(
+						new Paragraph("Total impuesto: $" + df.format(listaDetalle.get(i).getCantidad()) + "",
+								FontFactory.getFont("italic", 12, Font.BOLD)));
+				celdaFinal.setHorizontalAlignment(Element.ALIGN_RIGHT);
+				celdaFinal.setColspan(3);
+				table1.addCell(celdaFinal);
+			}*/
+			PdfPCell celdaFinal = new PdfPCell(
+					new Paragraph("Total:  " + df.format(comprasFactura.getTotal())+ "",
+							FontFactory.getFont("italic", 12, Font.BOLD)));
+			celdaFinal.setHorizontalAlignment(Element.ALIGN_RIGHT);
+			celdaFinal.setColspan(7);
+			table1.addCell(celdaFinal);
+
+			PdfPCell celdaFinal2 = new PdfPCell(
+					new Paragraph("" + df.format(0) + "", FontFactory.getFont("italic", 12, Font.BOLD)));
+			celdaFinal2.setHorizontalAlignment(Element.ALIGN_RIGHT);
+			celdaFinal2.setColspan(1);
+
+			table1.addCell(celdaFinal2);
+	
+			document.add(table1);
+
+		} catch (Exception ex) {
+			System.out.println("Error " + ex.getMessage());
+		}
+		document.close();
+		FacesContext context = FacesContext.getCurrentInstance();
+		Object response = context.getExternalContext().getResponse();
+		if (response instanceof HttpServletResponse) {
+			HttpServletResponse hsr = (HttpServletResponse) response;
+			hsr.setContentType("application/pdf");;
+			hsr.setHeader("Content-disposition", "attachment;filename=factura.pdf");
+			hsr.setContentLength(baos.size());
+			try {
+				ServletOutputStream out = hsr.getOutputStream();
+				baos.writeTo(out);
+				out.flush();
+			} catch (IOException ex) {
+				System.out.println("Error:  " + ex.getMessage());
+			}
+			context.responseComplete();
+		}
+	}
+	
+	
+	
+	
+
+	public double calcularSubtotal(double iva, double precio) {
+		BigDecimal bd = new BigDecimal(precio * (1 + iva));
+		return bd.setScale(2, RoundingMode.HALF_UP).doubleValue();
+	}
+
+	public double calcularTotal(int cantidad, double iva, double precio) {
+		return cantidad * calcularSubtotal(iva, precio);
+	}
+
+	private double facturaTotal() {
+		double total = 0;
+		for (DTODetalle dtoDetalle : listaDetalle) {
+			total += calcularTotal(dtoDetalle.getCantidad(), dtoDetalle.getProducto().getIva(),
+					dtoDetalle.getProducto().getPrecio());
+		}
+		BigDecimal bd = new BigDecimal(total);
+		return bd.setScale(2, RoundingMode.HALF_UP).doubleValue();
+	}
+
+	public List<DTODetalle> getListaDetalle() {
+		return listaDetalle;
+	}
+
+	public void setListaDetalle(List<DTODetalle> listaDetalle) {
+		this.listaDetalle = listaDetalle;
+	}
+
+	public ComprasFactura getComprasFactura() {
+		return comprasFactura;
+	}
+
+	public void setComprasFactura(ComprasFactura comprasFactura) {
+		this.comprasFactura = comprasFactura;
+	}
+
+	public ComprasDetalle getNuevoDetalle() {
+		return nuevoDetalle;
+	}
+
+	public void setNuevoDetalle(ComprasDetalle nuevoDetalle) {
+		this.nuevoDetalle = nuevoDetalle;
+	}
+
+	public ComprasDetalle getEditarDetalle() {
+		return editarDetalle;
+	}
+
+	public void setEditarDetalle(ComprasDetalle editarDetalle) {
+		this.editarDetalle = editarDetalle;
+	}
+
+}

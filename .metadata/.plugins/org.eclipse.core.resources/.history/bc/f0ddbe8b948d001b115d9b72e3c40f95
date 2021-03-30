@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<h:outputStylesheet name="css/primeflex.css" library="showcase" />
+</h:head>
+<body>
+	<p:growl>
+		<p:autoUpdate />
+	</p:growl>
+	<div class="ui-g">
+		<ui:insert>
+			<ui:include src="menu.xhtml" />
+		</ui:insert>
+		<div class="ui-g-10">
+			<div class="ui-g-12">
+				<h:form>
+					<p:panelGrid columns="2">
+						<h:outputText value="Id:" />
+						<h:outputText value="#{beanUsuarios.editUsuario.idUsuario}" />
+						
+						<h:outputText value="Nombre:" />
+						<p:inputText value="#{beanUsuarios.editUsuario.nombre}"
+							required="true" requiredMessage="Ingrese un nombre" />
+							
+						<h:outputText value="Apellido:" />
+						<p:inputText value="#{beanUsuarios.editUsuario.apellido}"
+							required="true" requiredMessage="Ingrese un apellido" />
+							
+						<h:outputText value="Correo:" />
+						<p:inputText value="#{beanUsuarios.editUsuario.correo}"
+							required="true" requiredMessage="Ingrese el correo" />
+							
+						<h:outputText value="Activo" />
+						<p:selectBooleanCheckbox
+							value="#{beanUsuarios.editUsuario.activo}" />
+							
+						<h:outputText value="Rol:" />
+						<p:selectOneMenu value="#{beanUsuarios.idRol}">
+							<f:selectItems value="#{beanRol.listaRoles}" var="c"
+								itemLabel="#{c.nombre}" itemValue="#{c.idRol}"></f:selectItems>
+						</p:selectOneMenu>
+
+						<p:commandButton value="Guardar" icon="pi pi-save"
+							action="#{beanUsuarios.actionListenerActualizarUsuario()}"></p:commandButton>
+					</p:panelGrid>
+				</h:form>
+			</div>
+		</div>
+	</div>
+	<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+		<p:commandButton value="Si" type="button"
+			styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+		<p:commandButton value="No" type="button"
+			styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+	</p:confirmDialog>
+</body>
+</html>

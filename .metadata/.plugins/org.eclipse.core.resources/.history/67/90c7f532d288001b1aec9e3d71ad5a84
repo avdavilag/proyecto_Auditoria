@@ -1,0 +1,63 @@
+package compras.controller;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Named;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+
+import compras.api.dtos.ProductoDTO;
+
+@Named
+@SessionScoped
+public class BeanProductos implements Serializable {
+
+	private List<ProductoDTO> productos;
+
+	private Client client;
+	private WebTarget target;
+	private JsonArray response;
+
+	public BeanProductos() {
+		// TODO Auto-generated constructor stub
+	}
+
+	@PostConstruct
+	public void inicializar() {
+		productos=new ArrayList<ProductoDTO>();
+		client = ClientBuilder.newClient();
+		target = client.target("http://env-4669188.phx.enscaled.us/api-dummyWeb/rest/producto");
+		response = target.request(MediaType.APPLICATION_JSON).get(JsonArray.class);
+		for (int i = 0; i < response.size(); i++) {
+			JsonObject jo = response.getJsonObject(i);
+			ProductoDTO p = new ProductoDTO();
+			p.setId_producto(jo.getString("idProducto"));
+			productos.add(p);
+		}
+	}
+
+	public JsonArray getResponse() {
+		return response;
+	}
+
+	public void setResponse(JsonArray response) {
+		this.response = response;
+	}
+
+	public List<ProductoDTO> getProductos() {
+		return productos;
+	}
+
+	public void setProductos(List<ProductoDTO> productos) {
+		this.productos = productos;
+	}
+
+}

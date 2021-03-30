@@ -1,0 +1,142 @@
+package compras.controller;
+
+import java.io.Serializable;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Named;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+
+import compras.model.entities.ComprasDetalle;
+import compras.model.entities.ComprasFactura;
+import compras.model.entities.ComprasProveedore;
+import compras.model.managers.ManagerDetalle;
+import compras.view.util.JSFUtil;
+
+@Named
+@SessionScoped
+public class BeanDetalle implements Serializable {
+	private List<ComprasDetalle> listaDetalle;
+	private double subtotal;
+	private double iva;
+	private double total;
+	private ComprasDetalle nuevoDetalle;
+
+	@EJB
+	private ManagerDetalle mDetalle;
+
+	public BeanDetalle() {
+		// TODO Auto-generated constructor stub
+	}
+
+	@PostConstruct
+	public void inicializar() {
+		// setListaDetalle(mDetalle.findAllDetalle());
+		setListaDetalle(mDetalle.findAllDetalle());
+		nuevoDetalle= new ComprasDetalle();
+	}
+
+	@ManyToOne
+	@JoinColumn(name = "id_factura")
+	private ComprasFactura comprasFactura;
+
+	public String actionSeleccionarFactura(ComprasFactura comprasFactura) {
+		this.comprasFactura = comprasFactura;
+		setListaDetalle(mDetalle.findByIdFactura(comprasFactura.getIdFactura()));
+		realizarCalculos();
+		return "detalle";
+	}
+	
+	public String actionListenerCrearDetalle() {
+		try {
+			mDetalle.crearDetalle(nuevoDetalle, comprasFactura.getIdFactura() );
+			listaDetalle= mDetalle.findAllDetalle();
+			JSFUtil.crearMensajeINFO("Detalle creado exitosamente");
+			nuevoDetalle= new ComprasDetalle();
+			return "detalle";
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+			return "";
+		}
+	}
+	
+	public void actionListenerEliminar(Integer idDetalle) {
+		try {
+			mDetalle.eliminarDetalle(idDetalle);
+			listaDetalle= mDetalle.findAllDetalle();
+			
+			JSFUtil.crearMensajeINFO("Detalle eliminado exitosamente");
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+		}
+	}
+
+	public double calcularTotal(int cantidad, double precio) {
+		return cantidad * precio;
+	}
+
+	public void realizarCalculos() {
+		subtotal = iva = total = 0;
+		for (ComprasDetalle comprasDetalle : listaDetalle) {
+			subtotal += calcularTotal(comprasDetalle.getCantidad(), comprasDetalle.getPrecio().doubleValue());
+		}
+		iva = subtotal * 0.12;
+		total = subtotal + iva;
+	}
+
+	public List<ComprasDetalle> getListaDetalle() {
+		return listaDetalle;
+	}
+
+	public void setListaDetalle(List<ComprasDetalle> listaDetalle) {
+		this.listaDetalle = listaDetalle;
+	}
+
+	public ComprasFactura getComprasFactura() {
+		return comprasFactura;
+	}
+
+	public void setComprasFactura(ComprasFactura comprasFactura) {
+		this.comprasFactura = comprasFactura;
+	}
+
+	public double getSubtotal() {
+		return subtotal;
+	}
+
+	public void setSubtotal(double subtotal) {
+		this.subtotal = subtotal;
+	}
+
+	public double getIva() {
+		return iva;
+	}
+
+	public void setIva(double iva) {
+		this.iva = iva;
+	}
+
+	public double getTotal() {
+		return total;
+	}
+
+	public void setTotal(double total) {
+		this.total = total;
+	}
+
+	public ComprasDetalle getNuevoDetalle() {
+		return nuevoDetalle;
+	}
+
+	public void setNuevoDetalle(ComprasDetalle nuevoDetalle) {
+		this.nuevoDetalle = nuevoDetalle;
+	}
+	
+	
+
+}

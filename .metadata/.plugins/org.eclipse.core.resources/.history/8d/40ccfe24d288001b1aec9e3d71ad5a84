@@ -1,0 +1,113 @@
+package compras.controller;
+
+import java.io.Serializable;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Named;
+
+import compras.model.entities.ComprasUsuario;
+import compras.model.managers.ManagerUsuarios;
+import compras.view.util.JSFUtil;
+
+@Named
+@SessionScoped
+public class BeanUsuarios implements Serializable {
+	private List<ComprasUsuario> listaUsuarios;
+	private ComprasUsuario nuevoUsuario;
+	private ComprasUsuario editUsuario;
+	private Integer idRol;
+
+	@EJB
+	private ManagerUsuarios mUsuarios;
+
+	public BeanUsuarios() {
+		// TODO Auto-generated constructor stub
+	}
+
+	@PostConstruct
+	public void inicializar() {
+		listaUsuarios = mUsuarios.findAllUsuarios();
+		nuevoUsuario = new ComprasUsuario();
+	}
+
+	public String actionListenerCrearUsuario() {
+		try {
+			mUsuarios.crearUsuario(nuevoUsuario, idRol);
+			listaUsuarios = mUsuarios.findAllUsuarios();
+			JSFUtil.crearMensajeINFO("Usuario creado");
+			// clean nuevoUsuario
+			nuevoUsuario = new ComprasUsuario();
+			return "usuarios";
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+			return "";
+		}
+		
+	}
+
+	public void actionListenerEliminarUsuario(Integer idUsuario) {
+		try {
+			mUsuarios.eliminarUsuario(idUsuario);
+			listaUsuarios = mUsuarios.findAllUsuarios();
+			JSFUtil.crearMensajeINFO("Usuario eliminado");
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+		}
+	}
+
+	public String actionSeleccionarUsuario(ComprasUsuario usuario) {
+		editUsuario = usuario;
+		return "editUsuarios";
+	}
+
+	public String actionListenerActualizarUsuario() {
+		try {
+			mUsuarios.actualizarUsuario(editUsuario, idRol);
+			JSFUtil.crearMensajeINFO("Usuario actualizado");
+			editUsuario = new ComprasUsuario();
+			return "usuarios";
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+			return "";
+		}
+	}
+
+	public List<ComprasUsuario> getListaUsuarios() {
+		return listaUsuarios;
+	}
+
+	public void setListaUsuarios(List<ComprasUsuario> listaUsuarios) {
+		this.listaUsuarios = listaUsuarios;
+	}
+
+	public Integer getIdRol() {
+		return idRol;
+	}
+
+	public void setIdRol(Integer idRol) {
+		this.idRol = idRol;
+	}
+
+	public ComprasUsuario getNuevoUsuario() {
+		return nuevoUsuario;
+	}
+
+	public void setNuevoUsuario(ComprasUsuario nuevoUsuario) {
+		this.nuevoUsuario = nuevoUsuario;
+	}
+
+	public ComprasUsuario getEditUsuario() {
+		return editUsuario;
+	}
+
+	public void setEditUsuario(ComprasUsuario editUsuario) {
+		this.editUsuario = editUsuario;
+	}
+
+}

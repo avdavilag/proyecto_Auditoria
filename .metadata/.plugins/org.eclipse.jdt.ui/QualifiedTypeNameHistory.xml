@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+    <fullyQualifiedTypeName name="java.io.File"/>
+    <fullyQualifiedTypeName name="javax.faces.context.ExternalContext"/>
+    <fullyQualifiedTypeName name="java.nio.file.Files"/>
+    <fullyQualifiedTypeName name="org.primefaces.model.StreamedContent"/>
+    <fullyQualifiedTypeName name="java.nio.file.Paths"/>
+    <fullyQualifiedTypeName name="org.jboss.dmr.Base64.OutputStream"/>
+    <fullyQualifiedTypeName name="java.io.OutputStream"/>
+    <fullyQualifiedTypeName name="java.io.FileNotFoundException"/>
+    <fullyQualifiedTypeName name="java.io.FileOutputStream"/>
+    <fullyQualifiedTypeName name="java.text.DecimalFormat"/>
+    <fullyQualifiedTypeName name="com.itextpdf.text.Document"/>
+    <fullyQualifiedTypeName name="java.io.ByteArrayOutputStream"/>
+    <fullyQualifiedTypeName name="com.itextpdf.text.PageSize"/>
+    <fullyQualifiedTypeName name="com.itextpdf.text.pdf.PdfWriter"/>
+    <fullyQualifiedTypeName name="com.itextpdf.text.Paragraph"/>
+    <fullyQualifiedTypeName name="com.itextpdf.text.FontFactory"/>
+    <fullyQualifiedTypeName name="java.text.DateFormat"/>
+    <fullyQualifiedTypeName name="java.text.SimpleDateFormat"/>
+    <fullyQualifiedTypeName name="java.util.Date"/>
+    <fullyQualifiedTypeName name="com.itextpdf.text.pdf.PdfPTable"/>
+    <fullyQualifiedTypeName name="com.itextpdf.text.pdf.PdfPCell"/>
+    <fullyQualifiedTypeName name="com.itextpdf.text.Element"/>
+    <fullyQualifiedTypeName name="com.itextpdf.text.Font"/>
+    <fullyQualifiedTypeName name="javax.faces.context.FacesContext"/>
+    <fullyQualifiedTypeName name="javax.servlet.http.HttpServletResponse"/>
+    <fullyQualifiedTypeName name="javax.servlet.ServletOutputStream"/>
+    <fullyQualifiedTypeName name="java.io.IOException"/>
+    <fullyQualifiedTypeName name="compras.model.dtos.DTOCuentasporcobrar"/>
+</qualifiedTypeNameHistroy>

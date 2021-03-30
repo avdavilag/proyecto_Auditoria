@@ -1,0 +1,150 @@
+package compras.controller;
+
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
+import javax.enterprise.context.SessionScoped;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+
+import compras.model.entities.ComprasFactura;
+import compras.model.managers.ManagerFactura;
+import compras.view.util.JSFUtil;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+
+@Named
+@SessionScoped
+public class BeanFactura implements Serializable {
+	private List<ComprasFactura> listaFacturas;
+	private ComprasFactura nuevafactura;
+	private ComprasFactura editarfactura;
+	private Integer idProveedor;
+	
+	@Inject
+	private BeanLogin beanLogin;
+
+	@EJB
+	private ManagerFactura mFactura;
+
+	public BeanFactura() {
+		// TODO Auto-generated constructor stub
+	}
+
+	@PostConstruct
+	public void inicializar() {
+		setListaFacturas(mFactura.findAllFactura());
+		nuevafactura = new ComprasFactura();
+	}
+
+	public String actionListenerCrearFactura() {
+		try {
+			mFactura.crearFactura(nuevafactura, idProveedor, beanLogin.getId_usuario());
+			listaFacturas = mFactura.findAllFactura();
+			JSFUtil.crearMensajeINFO("Factura creada exitosamente");
+			nuevafactura = new ComprasFactura();
+			return "factura";
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+			return "";
+		}
+	}
+
+	public void actionListenerEliminar(Integer idFactura) {
+		try {
+			mFactura.eliminarFactura(idFactura);
+			listaFacturas = mFactura.findAllFactura();
+			JSFUtil.crearMensajeINFO("Factura eliminada exitosamente");
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+		}
+	}
+
+	public String actionSeleccionarFactura(ComprasFactura factura) {
+		editarfactura = factura;
+		return "editFactura";
+	}
+
+	public String actionListenerEditarFactura() {
+		try {
+			mFactura.actualizarFactura(editarfactura, idProveedor, beanLogin.getId_usuario());
+			listaFacturas = mFactura.findAllFactura();
+			JSFUtil.crearMensajeINFO("Factura actualizada");
+			editarfactura = new ComprasFactura();
+			return "factura";
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+			return "";
+		}
+	}
+	
+	
+	
+	public void exportarPDF(ActionEvent actionEvent) throws JRException, IOException{
+		Map<String,Object> parametros= new HashMap<String,Object>();
+		parametros.put("txtUsuario", "MitoCode");
+		
+		File jasper = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/rptJSF.jasper"));
+		JasperPrint jasperPrint = JasperFillManager.fillReport(jasper.getPath(),parametros, new JRBeanCollectionDataSource(this.getPersonas()));
+		
+		HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+		response.addHeader("Content-disposition","attachment; filename=jsfReporte.pdf");
+		ServletOutputStream stream = response.getOutputStream();
+		
+		JasperExportManager.exportReportToPdfStream(jasperPrint, stream);
+		
+		stream.flush();
+		stream.close();
+		FacesContext.getCurrentInstance().responseComplete();
+	}
+	
+
+	public List<ComprasFactura> getListaFacturas() {
+		return listaFacturas;
+	}
+
+	public void setListaFacturas(List<ComprasFactura> listaFacturas) {
+		this.listaFacturas = listaFacturas;
+	}
+
+	public ComprasFactura getNuevafactura() {
+		return nuevafactura;
+	}
+
+	public void setNuevafactura(ComprasFactura nuevafactura) {
+		this.nuevafactura = nuevafactura;
+	}
+
+	public ComprasFactura getEditarfactura() {
+		return editarfactura;
+	}
+
+	public void setEditarfactura(ComprasFactura editarfactura) {
+		this.editarfactura = editarfactura;
+	}
+
+	public Integer getIdProveedor() {
+		return idProveedor;
+	}
+
+	public void setIdProveedor(Integer idProveedor) {
+		this.idProveedor = idProveedor;
+	}
+	
+}

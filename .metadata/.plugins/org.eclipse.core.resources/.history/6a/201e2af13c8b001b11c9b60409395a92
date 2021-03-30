@@ -1,0 +1,18 @@
+package Examencomidaplatos.model.managers;
+
+import java.io.Serializable;
+
+import javax.enterprise.context.SessionScoped;
+import javax.enterprise.inject.Alternative;
+import javax.inject.Named;
+
+@Alternative
+@Named
+@SessionScoped
+public class ManagersExamencomidaplatos implements Serializable {
+
+	public ManagersExamencomidaplatos() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

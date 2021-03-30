@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+<f:metadata>
+
+</f:metadata>
+<h:head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<h:outputStylesheet name="css/primeflex.css" library="showcase" />
+	<style>
+body {
+	background-image: url("./eclipse.jpg");
+}
+</style>
+</h:head>
+<body>
+	<p:growl>
+		<p:autoUpdate />
+	</p:growl>
+	<div class="ui-g">
+		<ui:insert>
+			<ui:include src="menu.xhtml" />
+		</ui:insert>
+		<div class="ui-g-10">
+			<div class="ui-g-6">
+				<p:commandButton value="Crear nuevo proveedor"
+					icon="pi pi-user-plus" action="crearProveedor" />
+			</div>
+			<div class="ui-g-6"></div>
+			<div class="ui-g-12">
+				<h:form id="formDatos">
+
+					<div class="card">
+						<p:dataTable value="#{beanProveedor.listaProveedores}" var="u"
+							emptyMessage="No hay usuarios" paginator="true" rows="10"
+							rowHover="true" showGridlines="true" scrollable="true"
+							scrollWidth="100%" style="width:1800px">
+							<p:autoUpdate/>
+
+							<p:column headerText="Cedula/Ruc">
+								<h:outputText value="#{u.cedulaRuc}" />
+							</p:column>
+
+							<p:column headerText="Nombre">
+								<h:outputText value="#{u.nombre}" />
+							</p:column>
+
+							<p:column headerText="Apellido">
+								<h:outputText value="#{u.apellido}" />
+							</p:column>
+
+							<p:column headerText="Fecha Nacimiento">
+								<h:outputText value="#{u.fechaNacimiento}" />
+							</p:column>
+
+							<p:column headerText="Ciudad Nacimiento">
+								<h:outputText value="#{u.ciudadNacimiento}" />
+							</p:column>
+
+							<p:column headerText="Direccion">
+								<h:outputText value="#{u.direccion}" />
+							</p:column>
+
+							<p:column headerText="Telefono">
+								<h:outputText value="#{u.telefono}" />
+							</p:column>
+
+							<p:column headerText="Correo">
+								<h:outputText value="#{u.correo}" />
+							</p:column>
+
+							<p:column headerText="Estado">
+								<h:outputText value="#{u.estado}" />
+							</p:column>
+
+							<p:column headerText="Tipo Pago">
+								<h:outputText value="#{u.comprasTipoProveedor.nombre}" />
+							</p:column>
+
+							<p:column headerText="Limite credito">
+								<h:outputText value="#{u.limiteCredito}" />
+							</p:column>
+
+							<p:column headerText="Opciones">
+								<p:commandButton icon="pi pi-times" title="eliminar"
+									actionListener="#{beanProveedor.actionListenerEliminarProveedor(u.idProveedor)}"
+									update="@form">
+									<p:confirm header="Confirmacion" message="Desea eliminar?"></p:confirm>
+								</p:commandButton>
+								<p:commandButton icon="pi pi-pencil" title="editar" update="@form"
+									action="#{beanProveedor.actionSeleccionarProveedor(u)}"></p:commandButton>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</h:form>
+			</div>
+		</div>
+	</div>
+	<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+		<p:commandButton value="Si" type="button"
+			styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+		<p:commandButton value="No" type="button"
+			styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+	</p:confirmDialog>
+</body>
+</html>

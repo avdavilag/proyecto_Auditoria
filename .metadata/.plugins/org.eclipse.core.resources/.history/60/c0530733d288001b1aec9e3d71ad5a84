@@ -1,0 +1,62 @@
+package compras.controller;
+
+import java.io.Serializable;
+
+import javax.ejb.EJB;
+import javax.enterprise.context.SessionScoped;
+import javax.faces.context.FacesContext;
+import javax.inject.Named;
+
+import compras.model.managers.ManagerUsuarios;
+import compras.view.util.JSFUtil;
+
+@Named
+@SessionScoped
+public class BeanLogin implements Serializable {
+	private Integer id_usuario;
+	private String clave;
+	private boolean validacionLogin;
+
+	@EJB
+	private ManagerUsuarios mUsuario;
+
+	public BeanLogin() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public String actionLogin() {
+		String ruta = "";
+		validacionLogin = false;
+		try {
+			ruta = mUsuario.validarLogin(id_usuario, clave);
+			System.out.println("ruta de login: " + ruta);
+			validacionLogin = true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+		}
+		return ruta;
+	}
+
+	public String actionCerrarSesion() {
+		FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
+		return "/index?faces-redirect=true";
+	}
+
+	public Integer getId_usuario() {
+		return id_usuario;
+	}
+
+	public void setId_usuario(Integer id_usuario) {
+		this.id_usuario = id_usuario;
+	}
+
+	public String getClave() {
+		return clave;
+	}
+
+	public void setClave(String clave) {
+		this.clave = clave;
+	}
+
+}

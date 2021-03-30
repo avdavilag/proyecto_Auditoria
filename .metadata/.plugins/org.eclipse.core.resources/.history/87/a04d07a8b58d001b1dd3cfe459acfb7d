@@ -1,0 +1,220 @@
+package compras.controller;
+
+import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Named;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+
+import compras.model.entities.ComprasProveedore;
+import compras.model.managers.ManagerProveedor;
+import compras.view.util.JSFUtil;
+
+@Named
+@SessionScoped
+public class BeanProveedor implements Serializable {
+	private List<ComprasProveedore> listaProveedores;
+	private ComprasProveedore nuevoProveedore;
+	private ComprasProveedore editProveedore;
+	private Integer idTipo;
+
+	@EJB
+	private ManagerProveedor mProveedor;
+
+	public BeanProveedor() {
+		// TODO Auto-generated constructor stub
+	}
+
+	@PostConstruct
+	public void inicializar() {
+		listaProveedores = mProveedor.findAllProveedores();
+		nuevoProveedore = new ComprasProveedore();
+	}
+
+	public String actionListenerCrearProveedor() {
+		try {
+			mProveedor.crearUsuario(nuevoProveedore, idTipo);
+			listaProveedores = mProveedor.findAllProveedores();
+			JSFUtil.crearMensajeINFO("Proveedor creado");
+			// clean nuevoUsuario
+			nuevoProveedore = new ComprasProveedore();
+			return "proveedor";
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+			return "";
+		}
+	}
+
+	public void actionListenerEliminarProveedor(Integer idProveedor) {
+		try {
+			mProveedor.eliminarUsuario(idProveedor);
+			listaProveedores = mProveedor.findAllProveedores();
+			JSFUtil.crearMensajeINFO("Proveedor eliminado");
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+		}
+	}
+	
+	////////////////////
+	
+public void imprimir() throws Exception {
+		
+		DecimalFormat df= new DecimalFormat("#.##");
+		//System.out.println("Aquiii" + id_utimiingreso);
+		//FileOutputStream baos = new FileOutputStream("");
+		Document document = new Document(PageSize.LETTER);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();	
+		try {
+			PdfWriter.getInstance(document,baos);
+			// METADATA
+			// Provider alumnodaos = new Provider();
+
+			document.open();
+			// Obtenemos la instancia de la imagen/logo.
+
+//			Image imagen = Image.getInstance("/home/robertpatino/git/sarelv1/sarelWeb/WebContent/imagen/Logo.png");
+//			// Alineamos la imagen al centro del documento.
+//			imagen.setAlignment(Image.ALIGN_RIGHT);
+//			imagen.scaleAbsolute(150, 100);
+//			// Agregamos la imagen al documento.
+//			document.add(imagen);
+			document.add(new Paragraph(" REPORTES DE PROVEEDORES 2 \n",
+					FontFactory.getFont("italic", 45, Font.BOLD)));
+			document.add(new Paragraph("\n"));
+			
+			
+				 
+
+			document.add(new Paragraph("Detalles de Factura", FontFactory.getFont("italic", 12, Font.BOLD)));
+
+			document.add(new Paragraph("\n"));
+			
+			DateFormat formatter = new SimpleDateFormat("dd/MM/yy '-' hh:mm:ss");
+			Date currentDate = new Date();
+			String date = formatter.format(currentDate);
+			document.add(new Paragraph("Fecha Generado: " + date));			
+			document.add(new Paragraph("Detalles de Factura", FontFactory.getFont("italic", 12, Font.BOLD)));
+
+			document.add(new Paragraph("\n"));
+		   PdfPTable table1 = new PdfPTable(7);
+			table1.setTotalWidth(new float[] { 70, 70, 70, 70, 70, 70, 70});
+			
+			table1.addCell(new Paragraph("Cedula/Ruc:", FontFactory.getFont("italic", 12, Font.BOLD)));
+			table1.addCell(new Paragraph("Nombre :", FontFactory.getFont("italic", 12, Font.BOLD)));
+			table1.addCell(new Paragraph("Apellido:", FontFactory.getFont("italic", 12, Font.BOLD)));
+			table1.addCell(new Paragraph("Fecha Naciemiento:", FontFactory.getFont("italic", 12, Font.BOLD)));
+			table1.addCell(new Paragraph("Ciudad Nacimiento:", FontFactory.getFont("italic", 12, Font.BOLD)));
+			table1.addCell(new Paragraph("Direccion:", FontFactory.getFont("italic", 12, Font.BOLD)));
+			table1.addCell(new Paragraph("Telefono:", FontFactory.getFont("italic", 12, Font.BOLD)));
+			table1.addCell(new Paragraph("Correo:", FontFactory.getFont("italic", 12, Font.BOLD)));
+			table1.addCell(new Paragraph("Tipo Pago:", FontFactory.getFont("italic", 12, Font.BOLD)));
+			table1.addCell(new Paragraph("Limite credito:", FontFactory.getFont("italic", 12, Font.BOLD)));
+			for (int i = 0; i < listaProveedores.size(); i++) {
+
+				table1.addCell(listaProveedores.get(i).getCedulaRuc()+"");
+				table1.addCell(listaProveedores.get(i).getNombre()+"");
+				
+				table1.addCell(listaProveedores.get(i).getApellido()+"");
+				
+				table1.addCell(listaProveedores.get(i).getFechaNacimiento()+"");
+				
+				table1.addCell(listaProveedores.get(i).getDireccion()+"");
+											
+				table1.addCell(listaProveedores.get(i).getTelefono()+"");
+				
+				table1.addCell(listaProveedores.get(i).getCorreo()+"");						
+			}
+
+		
+			PdfPCell celdaFinal = new PdfPCell(
+					new Paragraph("Grupo:  " + df.format(2)+ "",
+							FontFactory.getFont("italic", 12, Font.BOLD)));
+			celdaFinal.setHorizontalAlignment(Element.ALIGN_RIGHT);
+			celdaFinal.setColspan(11);
+			table1.addCell(celdaFinal);
+
+			PdfPCell celdaFinal2 = new PdfPCell(
+					new Paragraph("" + df.format(0) + "", FontFactory.getFont("italic", 12, Font.BOLD)));
+			celdaFinal2.setHorizontalAlignment(Element.ALIGN_RIGHT);
+			celdaFinal2.setColspan(1);
+
+			table1.addCell(celdaFinal2);
+	
+			document.add(table1);
+
+		} catch (Exception ex) {
+			System.out.println("Error " + ex.getMessage());
+		}	
+	
+	
+	
+	/////
+	public String actionSeleccionarProveedor(ComprasProveedore proveedor) {
+		editProveedore = proveedor;
+		return "editProveedor";
+	}
+
+	public String actionListenerActualizarProveedor() {
+		try {
+			mProveedor.actualizarUsuario(editProveedore, idTipo);
+			JSFUtil.crearMensajeINFO("Proveedor actualizado");
+			editProveedore = new ComprasProveedore();
+			return "proveedor";
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+			return "";
+		}
+	}
+
+	public List<ComprasProveedore> getListaProveedores() {
+		return listaProveedores;
+	}
+
+	public void setListaProveedores(List<ComprasProveedore> listaProveedores) {
+		this.listaProveedores = listaProveedores;
+	}
+
+	public ComprasProveedore getNuevoProveedore() {
+		return nuevoProveedore;
+	}
+	public void setNuevoProveedore(ComprasProveedore nuevoProveedore) {
+		this.nuevoProveedore = nuevoProveedore;
+	}
+
+	public ComprasProveedore getEditProveedore() {
+		return editProveedore;
+	}
+
+	public void setEditProveedore(ComprasProveedore editProveedore) {
+		this.editProveedore = editProveedore;
+	}
+
+	public Integer getIdTipo() {
+		return idTipo;
+	}
+
+	public void setIdTipo(Integer idTipo) {
+		this.idTipo = idTipo;
+	}
+
+}

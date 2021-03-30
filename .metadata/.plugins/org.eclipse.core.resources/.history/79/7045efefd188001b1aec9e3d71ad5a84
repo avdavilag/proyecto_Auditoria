@@ -1,0 +1,116 @@
+package compras.controller;
+
+import java.io.Serializable;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import compras.model.entities.ComprasFactura;
+import compras.model.managers.ManagerFactura;
+import compras.view.util.JSFUtil;
+
+@Named
+@SessionScoped
+public class BeanFactura implements Serializable {
+	private List<ComprasFactura> listaFacturas;
+	private ComprasFactura nuevafactura;
+	private ComprasFactura editarfactura;
+	private Integer idProveedor;
+	
+	@Inject
+	private BeanLogin beanLogin;
+
+	@EJB
+	private ManagerFactura mFactura;
+
+	public BeanFactura() {
+		// TODO Auto-generated constructor stub
+	}
+
+	@PostConstruct
+	public void inicializar() {
+		setListaFacturas(mFactura.findAllFactura());
+		nuevafactura = new ComprasFactura();
+	}
+
+	public String actionListenerCrearFactura() {
+		try {
+			mFactura.crearFactura(nuevafactura, idProveedor, beanLogin.getId_usuario());
+			listaFacturas = mFactura.findAllFactura();
+			JSFUtil.crearMensajeINFO("Factura creada exitosamente");
+			nuevafactura = new ComprasFactura();
+			return "factura";
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+			return "";
+		}
+	}
+
+	public void actionListenerEliminar(Integer idFactura) {
+		try {
+			mFactura.eliminarFactura(idFactura);
+			listaFacturas = mFactura.findAllFactura();
+			JSFUtil.crearMensajeINFO("Factura eliminada exitosamente");
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+		}
+	}
+
+	public String actionSeleccionarFactura(ComprasFactura factura) {
+		editarfactura = factura;
+		return "editFactura";
+	}
+
+	public String actionListenerEditarFactura() {
+		try {
+			mFactura.actualizarFactura(editarfactura, idProveedor, beanLogin.getId_usuario());
+			listaFacturas = mFactura.findAllFactura();
+			JSFUtil.crearMensajeINFO("Factura actualizada");
+			editarfactura = new ComprasFactura();
+			return "factura";
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+			return "";
+		}
+	}
+
+	public List<ComprasFactura> getListaFacturas() {
+		return listaFacturas;
+	}
+
+	public void setListaFacturas(List<ComprasFactura> listaFacturas) {
+		this.listaFacturas = listaFacturas;
+	}
+
+	public ComprasFactura getNuevafactura() {
+		return nuevafactura;
+	}
+
+	public void setNuevafactura(ComprasFactura nuevafactura) {
+		this.nuevafactura = nuevafactura;
+	}
+
+	public ComprasFactura getEditarfactura() {
+		return editarfactura;
+	}
+
+	public void setEditarfactura(ComprasFactura editarfactura) {
+		this.editarfactura = editarfactura;
+	}
+
+	public Integer getIdProveedor() {
+		return idProveedor;
+	}
+
+	public void setIdProveedor(Integer idProveedor) {
+		this.idProveedor = idProveedor;
+	}
+	
+}

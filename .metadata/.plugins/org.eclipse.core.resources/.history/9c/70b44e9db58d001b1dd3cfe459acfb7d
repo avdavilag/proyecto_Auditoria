@@ -1,0 +1,112 @@
+package compras.controller;
+
+import java.io.Serializable;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Named;
+
+import compras.model.entities.ComprasProveedore;
+import compras.model.managers.ManagerProveedor;
+import compras.view.util.JSFUtil;
+
+@Named
+@SessionScoped
+public class BeanProveedor implements Serializable {
+	private List<ComprasProveedore> listaProveedores;
+	private ComprasProveedore nuevoProveedore;
+	private ComprasProveedore editProveedore;
+	private Integer idTipo;
+
+	@EJB
+	private ManagerProveedor mProveedor;
+
+	public BeanProveedor() {
+		// TODO Auto-generated constructor stub
+	}
+
+	@PostConstruct
+	public void inicializar() {
+		listaProveedores = mProveedor.findAllProveedores();
+		nuevoProveedore = new ComprasProveedore();
+	}
+
+	public String actionListenerCrearProveedor() {
+		try {
+			mProveedor.crearUsuario(nuevoProveedore, idTipo);
+			listaProveedores = mProveedor.findAllProveedores();
+			JSFUtil.crearMensajeINFO("Proveedor creado");
+			// clean nuevoUsuario
+			nuevoProveedore = new ComprasProveedore();
+			return "proveedor";
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+			return "";
+		}
+	}
+
+	public void actionListenerEliminarProveedor(Integer idProveedor) {
+		try {
+			mProveedor.eliminarUsuario(idProveedor);
+			listaProveedores = mProveedor.findAllProveedores();
+			JSFUtil.crearMensajeINFO("Proveedor eliminado");
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+		}
+	}
+
+	public String actionSeleccionarProveedor(ComprasProveedore proveedor) {
+		editProveedore = proveedor;
+		return "editProveedor";
+	}
+
+	public String actionListenerActualizarProveedor() {
+		try {
+			mProveedor.actualizarUsuario(editProveedore, idTipo);
+			JSFUtil.crearMensajeINFO("Proveedor actualizado");
+			editProveedore = new ComprasProveedore();
+			return "proveedor";
+		} catch (Exception e) {
+			// TODO: handle exception
+			JSFUtil.crearMensajeERROR(e.getMessage());
+			return "";
+		}
+	}
+
+	public List<ComprasProveedore> getListaProveedores() {
+		return listaProveedores;
+	}
+
+	public void setListaProveedores(List<ComprasProveedore> listaProveedores) {
+		this.listaProveedores = listaProveedores;
+	}
+
+	public ComprasProveedore getNuevoProveedore() {
+		return nuevoProveedore;
+	}
+
+	public void setNuevoProveedore(ComprasProveedore nuevoProveedore) {
+		this.nuevoProveedore = nuevoProveedore;
+	}
+
+	public ComprasProveedore getEditProveedore() {
+		return editProveedore;
+	}
+
+	public void setEditProveedore(ComprasProveedore editProveedore) {
+		this.editProveedore = editProveedore;
+	}
+
+	public Integer getIdTipo() {
+		return idTipo;
+	}
+
+	public void setIdTipo(Integer idTipo) {
+		this.idTipo = idTipo;
+	}
+
+}

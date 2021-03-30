@@ -1,0 +1,145 @@
+package compras.model.entities;
+
+import java.io.Serializable;
+import javax.persistence.*;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+
+/**
+ * The persistent class for the compras_factura database table.
+ * 
+ */
+@Entity
+@Table(name="compras_factura")
+@NamedQuery(name="ComprasFactura.findAll", query="SELECT c FROM ComprasFactura c")
+public class ComprasFactura implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(name="id_factura", unique=true, nullable=false)
+	private Integer idFactura;
+
+	@Column(nullable=false)
+	private Boolean activo;
+
+	@Temporal(TemporalType.DATE)
+	@Column(nullable=false)
+	private Date fecha;
+
+	@Temporal(TemporalType.DATE)
+	@Column(name="fecha_vencimiento")
+	private Date fechaVencimiento;
+
+	@Column(name="tipo_pago", nullable=false, length=8)
+	private String tipoPago;
+
+	@Column(nullable=false, precision=131089)
+	private BigDecimal total;
+
+	//bi-directional many-to-one association to ComprasDetalle
+	@OneToMany(mappedBy="comprasFactura")
+	private List<ComprasDetalle> comprasDetalles;
+
+	//bi-directional many-to-one association to ComprasProveedore
+	@ManyToOne
+	@JoinColumn(name="id_proveedor", nullable=false)
+	private ComprasProveedore comprasProveedore;
+
+	//bi-directional many-to-one association to ComprasUsuario
+	@ManyToOne
+	@JoinColumn(name="id_usuario", nullable=false)
+	private ComprasUsuario comprasUsuario;
+
+	public ComprasFactura() {
+	}
+
+	public Integer getIdFactura() {
+		return this.idFactura;
+	}
+
+	public void setIdFactura(Integer idFactura) {
+		this.idFactura = idFactura;
+	}
+
+	public Boolean getActivo() {
+		return this.activo;
+	}
+
+	public void setActivo(Boolean activo) {
+		this.activo = activo;
+	}
+
+	public Date getFecha() {
+		return this.fecha;
+	}
+
+	public void setFecha(Date fecha) {
+		this.fecha = fecha;
+	}
+
+	public Date getFechaVencimiento() {
+		return this.fechaVencimiento;
+	}
+
+	public void setFechaVencimiento(Date fechaVencimiento) {
+		this.fechaVencimiento = fechaVencimiento;
+	}
+
+	public String getTipoPago() {
+		return this.tipoPago;
+	}
+
+	public void setTipoPago(String tipoPago) {
+		this.tipoPago = tipoPago;
+	}
+
+	public BigDecimal getTotal() {
+		return this.total;
+	}
+
+	public void setTotal(BigDecimal total) {
+		this.total = total;
+	}
+
+	public List<ComprasDetalle> getComprasDetalles() {
+		return this.comprasDetalles;
+	}
+
+	public void setComprasDetalles(List<ComprasDetalle> comprasDetalles) {
+		this.comprasDetalles = comprasDetalles;
+	}
+
+	public ComprasDetalle addComprasDetalle(ComprasDetalle comprasDetalle) {
+		getComprasDetalles().add(comprasDetalle);
+		comprasDetalle.setComprasFactura(this);
+
+		return comprasDetalle;
+	}
+
+	public ComprasDetalle removeComprasDetalle(ComprasDetalle comprasDetalle) {
+		getComprasDetalles().remove(comprasDetalle);
+		comprasDetalle.setComprasFactura(null);
+
+		return comprasDetalle;
+	}
+
+	public ComprasProveedore getComprasProveedore() {
+		return this.comprasProveedore;
+	}
+
+	public void setComprasProveedore(ComprasProveedore comprasProveedore) {
+		this.comprasProveedore = comprasProveedore;
+	}
+
+	public ComprasUsuario getComprasUsuario() {
+		return this.comprasUsuario;
+	}
+
+	public void setComprasUsuario(ComprasUsuario comprasUsuario) {
+		this.comprasUsuario = comprasUsuario;
+	}
+
+}

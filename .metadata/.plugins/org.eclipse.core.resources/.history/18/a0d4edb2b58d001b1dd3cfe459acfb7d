@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<h:outputStylesheet name="css/primeflex.css" library="showcase" />
+	<style>
+body {
+	background-image: url("./eclipse.jpg");
+}
+</style>
+</h:head>
+<body>
+	<p:growl>
+		<p:autoUpdate />
+	</p:growl>
+	<div class="ui-g">
+		<ui:insert>
+			<ui:include src="menu.xhtml" />
+		</ui:insert>
+		<div class="ui-g-10">
+			<div class="ui-g-12">
+				<h:form>
+					<p:panelGrid columns="4">
+						<h:outputText value="Cedula/Ruc:" />
+						<p:inputText value="#{beanProveedor.nuevoProveedore.cedulaRuc}"
+							required="true" requiredMessage="Ingrese una cedula o ruc" />
+
+						<h:outputText value="Correo:" />
+						<p:inputText value="#{beanProveedor.nuevoProveedore.correo}"
+							required="true" requiredMessage="Ingrese el correo" />
+
+						<h:outputText value="Nombre:" />
+						<p:inputText value="#{beanProveedor.nuevoProveedore.nombre}"
+							required="true" requiredMessage="Ingrese un nombre" />
+
+						<h:outputText value="Apellido:" />
+						<p:inputText value="#{beanProveedor.nuevoProveedore.apellido}"
+							required="true" requiredMessage="Ingrese un apellido" />
+
+						<h:outputText value="Fecha Nacimiento:" />
+						<p:datePicker
+							value="#{beanProveedor.nuevoProveedore.fechaNacimiento}"
+							required="true" requiredMessage="Ingrese una fecha" />
+
+						<h:outputText value="Ciudad Nacimiento" />
+						<p:inputText
+							value="#{beanProveedor.nuevoProveedore.ciudadNacimiento}"
+							required="true" requiredMessage="Ingrese la ciudad de nacimiento" />
+
+						<h:outputText value="Direccion:" />
+						<p:inputText value="#{beanProveedor.nuevoProveedore.direccion}"
+							required="true" requiredMessage="Ingrese una direccion" />
+
+						<h:outputText value="Telefono:" />
+						<p:inputText value="#{beanProveedor.nuevoProveedore.telefono}"
+							required="true" requiredMessage="Ingrese un numero de telefono" />
+
+						<h:outputText value="Tipo pago:" />
+						<p:selectOneMenu value="#{beanProveedor.idTipo}">
+							<f:selectItems value="#{beanTipoProveedor.listaTipos}" var="c"
+								itemLabel="#{c.nombre}" itemValue="#{c.idTipoProveedor}"></f:selectItems>
+						</p:selectOneMenu>
+
+						<h:outputText value="Limite credito:" />
+						<p:spinner value="#{beanProveedor.nuevoProveedore.limiteCredito}"
+							min="0" max="10000" />
+
+						<p:commandButton value="Guardar" icon="pi pi-save" update="@form"
+							action="#{beanProveedor.actionListenerCrearProveedor()}"></p:commandButton>
+					</p:panelGrid>
+				</h:form>
+			</div>
+		</div>
+	</div>
+	<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+		<p:commandButton value="Si" type="button"
+			styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+		<p:commandButton value="No" type="button"
+			styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+	</p:confirmDialog>
+</body>
+</html>

@@ -1,0 +1,39 @@
+package compras.controller;
+
+import java.io.Serializable;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Named;
+
+import compras.model.entities.ComprasTipoProveedor;
+import compras.model.managers.ManagerTipoProveedor;
+
+@Named
+@SessionScoped
+public class BeanTipoProveedor implements Serializable {
+	private List<ComprasTipoProveedor> listaTipos;
+
+	@EJB
+	private ManagerTipoProveedor mtp;
+
+	public BeanTipoProveedor() {
+		// TODO Auto-generated constructor stub
+	}
+
+	@PostConstruct
+	public void inicializar() {
+		listaTipos = mtp.findAllTipoProveedor();
+	}
+
+	public List<ComprasTipoProveedor> getListaTipos() {
+		return listaTipos;
+	}
+
+	public void setListaTipos(List<ComprasTipoProveedor> listaTipos) {
+		this.listaTipos = listaTipos;
+	}
+
+}
